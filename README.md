@@ -20,7 +20,7 @@ Hey there inquisitive mind! I heard you're interested in the wondrous Internet o
 2. Valid AWS Account
 3. Internet access
 4. An ESP32 device board such as [this](https://www.amazon.com/gp/product/B0718T232Z/ref=oh_aui_detailpage_o05_s00?ie=UTF8&psc=1)
-5. A micro-USB cable such as [this](https://www.amazon.com/AmazonBasics-Male-Micro-Cable-Black/dp/B0711PVX6Z/ref=sr_1_5?ie=UTF8&qid=1515622065&sr=8-5&keywords=micro+usb+cable)
+5. A micro-USB o USB-C cable such as [this](https://www.amazon.com/AmazonBasics-Male-Micro-Cable-Black/dp/B0711PVX6Z/ref=sr_1_5?ie=UTF8&qid=1515622065&sr=8-5&keywords=micro+usb+cable)
 
 ## Workshop Architecture
 
@@ -230,88 +230,21 @@ Once installation is complete, start the IDE.
 >**Note:** The installation path for Sketches should default to C:\Users\username\Documents\Arduino where  username is the one you use to log into your PC
 
 ### Step 2: 
-Navigate to **"Tools -> Board"**. As you can see, all the standard Arduino boards are listed for selection such as Uno, Nano, Mega, etc. 
+Navigate to **"Boards Manager"**. And search "esp" As you can see, you need to choose the option called esp32 by Espressif Systems and install it. 
 
 <p align="center"> 
 <img src="images/win2.png" width="55%">
 </p>
 
-The ESP32 is a non-standard board and thus we need to install a 3rd-party library for it work. This can be done in an automatic or manual fashion. In this case, we will opt for a semi-automatic installation by cloning a Github repository into an Arduino-specific folder.
-
-Since Windows doesn't come with Git, proceed with installing it from this url: https://git-scm.com/download/win
-
->**Note:** Use the default installation options
-
-Once installation is complete, click the Start menu and open "Git CMD".
-
-<p align="center"> 
-<img src="images/win_git0.png" width="35%">
-</p>
-
-Paste the following and execute it in the window: 
-
-```shell
-C: && mkdir %userprofile%\Documents\Arduino\hardware\espressif && cd %userprofile%\Documents\Arduino\hardware\espressif && git clone https://github.com/espressif/arduino-esp32.git esp32 && cd esp32 && git submodule update --init --recursive
-```
-
-The output should look as follows.
-
-<p align="center"> 
-<img src="images/win_git1.png" width="85%">
-</p>
-
-Click the Start menu, type ""**CMD**" and press enter to open a regular Command Prompt.
-
-Paste the following and execute it in the window: 
-
-```shell
-C: && cd %userprofile%\Documents\Arduino\hardware\espressif\esp32\tools\ && get.exe
-```
-
-The output should look as follows.
-
-<p align="center"> 
-<img src="images/win_git3.png" width="65%">
-</p>
-
-Restart your IDE then navigate back to **"Tools -> Board"**, you'll now see the ESP32 board listed.
-
-<p align="center"> 
-<img src="images/win3.png" width="55%">
-</p>
-
-### Step 3: 
-Navigate to **"Sketch -> Include Library"**. You'll see that the standard Arduino libraries are available for inclusion.
-
-<p align="center"> 
-<img src="images/win4.png" width="55%">
-</p>
+The ESP32 is a non-standard board and thus we need to install a 3rd-party library for it work. This can be done in an automatic fashion using Boards Manager.
 
 We'll be utilising a custom Arduino ESP32 library to connect to AWS IoT. This library itself makes use of the AWS Embedded-C SDK and wraps the IoT functions.
 
-Click the Start menu and open "Git CMD".
+Navigate to **“Sketch“** → **”Include Library“** → **”Manage Libraries“**.
 
-<p align="center"> 
-<img src="images/win_git00.png" width="45%">
-</p>
-
-Paste the following and execute it in the Git CMD window: 
-
-```shell
-C: && mkdir %userprofile%\Documents\Arduino\tempDir && cd %userprofile%\Documents\Arduino\tempDir && git clone https://github.com/ExploreEmbedded/Hornbill-Examples.git && cd Hornbill-Examples\arduino-esp32 && move AWS_IOT %userprofile%\Documents\Arduino\libraries && cd \ && rmdir /s /q %userprofile%\Documents\Arduino\tempDir
-```
-
-The output should look as follows.
-
-<p align="center"> 
-<img src="images/win_git2.png" width="85%">
-</p>
-
-Restart your IDE then go back to **"Sketch -> Include Library"**, you'll see that the AWS IOT library appears now.
-
-<p align="center"> 
-<img src="images/win5.png" width="45%">
-</p>
+1. Search for ”lwmqtt“ and download the library
+2. Search for “ArduinoJson” and download the library
+3. Search for “wifi” and download the library. If already installed, update to latest version.
 
 Close your IDE.
 
@@ -330,11 +263,7 @@ Open up your Arduino IDE and navigate to **"Tools"**. Click **"Board"** and sele
 Ensure the settings are as follows:
 
 Board: **"ESP32 Dev Module"**
-Flash Mode: **"QIO"**
-Flash Frequency: **"80MHz"**
-Flash Size: **"4MB (32MB)"**
-Upload Speed: **"921600"**
-Core Debug Level: **"None"**
+Port: **"COM3"** (Port number can be other)
 
 <p align="center"> 
 <img src="images/port0.png" width="35%">
@@ -362,7 +291,7 @@ Navigate to **"Tools -> Serial Monitor"**
 <img src="images/win8.png" width="35%">
 </p>
 
-Change the baud rate to **115200**.
+Change the baud rate to **115200** or to **9600** it can change depending on the latest code in the esp32.
 
 >**Note:** There is no notification once you change the rate so proceed accordingly.
 
@@ -692,13 +621,11 @@ Once your thing has been created you'll be taken back to the Things page where i
 
 We need to configure the device itself so it can connect to the AWS IoT Core.
 
-Locate this file under the AWS_IOT library that we installed in the first lab and open it with a Text editor: **aws_iot_certificates.c**. You'll see three arrays which we need to edit.
-
-macOS: **~/Documents/Arduino/libraries/AWS_IOT/src/**  
-Windows: **C:\Users\username\Documents\Arduino\libraries\AWS_IOT\src** where username is your Windows login.
+We need to add a new file to our current project clicking in the three dots on the rigth in the Arduino skecth and name this file as **"secrets.h"**.
+this will be a dependency of our main code and where we will store the certificates in plain text.
 
 <p align="center"> 
-<img src="images/certs_array.png" width="55%">
+<img src="images/newtab.png" width="55%">
 </p>
 
 We'll insert the file contents from our downloaded documents into the arrays with the following mappings:
@@ -730,16 +657,14 @@ hnacRHr2lVz2XTIIM6RUthg/aFzyQkqFOFSDX9HoLPKsEdao7WNq
 Paste the file contents into the **aws_root_ca_pem** array in the following fashion. Make sure you follow these four rules when doing so:
 
 1. Do not add any extra whitespaces 
-2. End your lines with: \n\
-3. End the last line with: \n
-4. Put the array in quotes: ""
+
 
 ```c
-const char aws_root_ca_pem[] = {"-----BEGIN CERTIFICATE-----\n\
-MIIE0zCCA7ugAwIBAgIQGNrRniZ96LtKIVjNzGs7SjANBgkqhkiG9w0BAQUFADCB\n\
-aXR5IC0gRzUwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCvJAgIKXo1\n\
-hnacRHr2lVz2XTIIM6RUthg/aFzyQkqFOFSDX9HoLPKsEdao7WNq\n\
------END CERTIFICATE-----\n"};
+static const char AWS_CERT_CA[] PROGMEM = R"EOF(-----BEGIN CERTIFICATE-----
+MIIE0zCCA7ugAwIBAgIQGNrRniZ96LtKIVjNzGs7SjANBgkqhkiG9w0BAQUFADCB
+aXR5IC0gRzUwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCvJAgIKXo1
+hnacRHr2lVz2XTIIM6RUthg/aFzyQkqFOFSDX9HoLPKsEdao7WNq
+-----END CERTIFICATE-----)EOF";
 
 ```
 
@@ -766,16 +691,14 @@ mY6oMQITy+QyWsqHxpLcd0HGe75xfJ3XnT+spEywADj6VpemBOXnpu9kDcs4
 Paste the file contents into the **certificate_pem_crt** array in the following fashion.  Make sure you follow these four rules when doing so:
 
 1. Do not add any extra whitespaces 
-2. End your lines with: \n\
-3. End the last line with: \n
-4. Put the array in quotes: ""
+
 
 ```c
-const char certificate_pem_crt[] = {"-----BEGIN CERTIFICATE-----\n\
-UyXRLsYwcMR4rs3Bq9G/BGU4WXRHWOJ00UjBeqaCh8PF9Y0jPsomfOTc6p8NwU73\n\
-SccQ4UVmzJWPHzNNngKgm28WkyBhrWub7RdE8/JBOvitUrnC6j+hD2XmKweZV+v6\n\
-mY6oMQITy+QyWsqHxpLcd0HGe75xfJ3XnT+spEywADj6VpemBOXnpu9kDcs4\n\
------END CERTIFICATE-----\n"};
+static const char AWS_CERT_CRT[] PROGMEM = R"KEY( -----BEGIN CERTIFICATE-----
+UyXRLsYwcMR4rs3Bq9G/BGU4WXRHWOJ00UjBeqaCh8PF9Y0jPsomfOTc6p8NwU73
+SccQ4UVmzJWPHzNNngKgm28WkyBhrWub7RdE8/JBOvitUrnC6j+hD2XmKweZV+v6
+mY6oMQITy+QyWsqHxpLcd0HGe75xfJ3XnT+spEywADj6VpemBOXnpu9kDcs4
+-----END CERTIFICATE----- )KEY";
 
 ```
 
@@ -802,60 +725,58 @@ r1jg7VZIHbQ46Ecejv5TMCbcDJZcPR7B00W333cHLeV62GPSNISn
 Paste the file contents into the **private_pem_key** array in the following fashion.  Make sure you follow these four rules when doing so:
 
 1. Do not add any extra whitespaces 
-2. End your lines with: \n\
-3. End the last line with: \n
-4. Put the array in quotes: ""
+
 
 ```c
-const char private_pem_key[] = {"-----BEGIN RSA PRIVATE KEY-----\n\
-GpLmWQKBgFZVdyV74fWKxcrCFSVGqQkiR6C97w+LjfBd3NZbGym1oA9yvqDKnWCt\n\
-qsB1OUSoKd7tZImu2UQSrGBnP472ENfjcTYAEq6EoUUFeWfZ6SvscQlrVKWtEiEj\n\
-r1jg7VZIHbQ46Ecejv5TMCbcDJZcPR7B00W333cHLeV62GPSNISn\n\
------END RSA PRIVATE KEY-----\n"};
+static const char AWS_CERT_PRIVATE[] PROGMEM = R"KEY( -----BEGIN RSA PRIVATE KEY-----
+GpLmWQKBgFZVdyV74fWKxcrCFSVGqQkiR6C97w+LjfBd3NZbGym1oA9yvqDKnWCt
+qsB1OUSoKd7tZImu2UQSrGBnP472ENfjcTYAEq6EoUUFeWfZ6SvscQlrVKWtEiEj
+r1jg7VZIHbQ46Ecejv5TMCbcDJZcPR7B00W333cHLeV62GPSNISn
+-----END RSA PRIVATE KEY----- )KEY";
 
 ```
 
 >**Note:** It's imperative that you follow the four rules as many people get caught out by this copy and paste effort.
 
-Once you've copied over all of the files, save the **aws_iot_certificate.c** file.
+Once you've copied over all of the files, save the **secrets.h** file.
 
 ### Step 4: Creating the application and testing
 
-Create a new Sketch by clicking **"File -> New"**. We're gonna paste three code fragments to build up our application.
+In the main Sketch We're gonna paste three code fragments to build up our application.
 
 To start, paste the following above the setup() method:
 
 ```c
-// This include is for the AWS IOT library that we installed
-#include <AWS_IOT.h>
-// This include is for Wifi functionality
-#include <WiFi.h>
+// Include the file with AWS IoT Certificates generated in a previous step 
+#include "secrets.h" 
+// Include a Wifi manage client
+#include <WiFiClientSecure.h> 
+// Include an MQTT Lib Secure client
+#include <MQTTClient.h>
+// Include the Arduino Json library to work with json objects 
+#include <ArduinoJson.h> 
+// Include a Wifi library
+#include "WiFi.h"
 
-// Declare an instance of the AWS IOT library
-AWS_IOT hornbill;
+// The MQTT topics that this device should publish/subscribe 
+#define AWS_IOT_PUBLISH_TOPIC "$aws/things/Thingamajig/shadow/update/accepted" 
+#define AWS_IOT_SUBSCRIBE_TOPIC "esp32/sub"
 
-// Wifi credentials
-char WIFI_SSID[]="";
-char WIFI_PASSWORD[]="";
-
-// Thing details
-char HOST_ADDRESS[]="";
-char CLIENT_ID[]= "Thingamajig";
-char TOPIC_NAME[]= "$aws/things/Thingamajig/shadow/update";
-
-// Connection status
-int status = WL_IDLE_STATUS;
-// Payload array to store thing shadow JSON document
-char payload[512];
-// Counter for iteration
-int counter = 0;
+WiFiClientSecure net = WiFiClientSecure(); 
+MQTTClient client = MQTTClient(256);
 ```
 
-Update our wifi credentials with the relevant ones at these lines:
+Add our wifi credentials and other needed variables in secrets.h with the relevant ones by adding these lines and saving the file:
 
 ```c
-char WIFI_SSID[]="xxxxxxxxx";
-char WIFI_PASSWORD[]="xxxxxxxx";
+#include <pgmspace.h>
+
+#define SECRET 
+#define THINGNAME "Thingamajig"
+
+const char WIFI_SSID[] = "xxxxxxxxxxxx"; 
+const char WIFI_PASSWORD[] = "xxxxxxxxxxxx";  
+const char AWS_IOT_ENDPOINT[] = "xxxxxxxxxxx-ats.iot.us-east-1.amazonaws.com";
 ```
 
 Navigate to **"Manage -> Things"** from the **AWS IoT** left navigation then click on the **"Thingamajig"** thing.
@@ -873,9 +794,9 @@ Click **Interact** from the left navigation and copy the HTTPS URL.
 Update our host address in this section with the copied URL:
 
 ```c
-char HOST_ADDRESS[]="xxxxxxx";
-char CLIENT_ID[]= "Thingamajig";
-char TOPIC_NAME[]= "$aws/things/Thingamajig/shadow/update";
+#define THINGNAME "Thingamajig"
+....
+const char AWS_IOT_ENDPOINT[] = "xxxxxxxxxxx-ats.iot.us-east-1.amazonaws.com";
 ```
 
 >**Note:** If you named your device/thing something difference than "Thingamajig", please make sure to update the client id and topic name too. 
@@ -883,26 +804,61 @@ char TOPIC_NAME[]= "$aws/things/Thingamajig/shadow/update";
 Replace the setup() method with the following code:
 
 ```c
-void setup()
-{
-  WiFi.disconnect(true);
-  Serial.begin(115200);
-  // initialise AWS connection
-  while (status != WL_CONNECTED) {
-    Serial.print("Attempting to connect to Wifi network: ");
-    Serial.println(WIFI_SSID);
-    status = WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-    delay(5000);
-  }
-  Serial.println("Connected to Wifi!");
-  if(hornbill.connect(HOST_ADDRESS,CLIENT_ID)== 0) {
-    Serial.println("Connected to AWS, bru");
-    delay(1000);
-  }
-  else {
-    Serial.println("AWS connection failed, Check the HOST Address");
-    while(1);
-  }
+
+void connectAWS() 
+{ 
+// Set WiFi mode to station mode 
+WiFi.mode(WIFI_STA);
+
+// Connect to the specified WiFi network
+WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+Serial.println("Connecting to Wi-Fi");
+
+// Wait until WiFi connection is established
+while (WiFi.status() != WL_CONNECTED) 
+{ 
+  delay(500);
+  Serial.print("."); 
+}
+
+// Configure WiFiClientSecure to use the AWS IoT device credentials 
+net.setCACert(AWS_CERT_CA); 
+net.setCertificate(AWS_CERT_CRT); 
+net.setPrivateKey(AWS_CERT_PRIVATE);
+
+// Connect to the MQTT broker on the AWS endpoint we defined earlier 
+client.begin(AWS_IOT_ENDPOINT, 8883, net);
+
+// Define a callback function to handle incoming MQTT messages
+client.onMessage(messageHandler);
+Serial.print("Connecting to AWS IOT");
+
+// Connect to AWS IoT Core with the unique client ID
+while (!client.connect(THINGNAME)) 
+{ 
+  Serial.print(".");
+  delay(100); 
+}
+
+// Check if connection was successful
+if(!client.connected())
+{ 
+  Serial.println("AWS IoT Timeout!"); 
+  return; 
+}
+
+// Subscribe to a topic 
+client.subscribe(AWS_IOT_SUBSCRIBE_TOPIC);
+
+Serial.println("AWS IoT Connected!");
+}
+
+void setup() 
+{ 
+  // Initialize serial communication
+  Serial.begin(9600); 
+  // Connect to AWS IoT Core using the function declared early
+  connectAWS(); 
 }
 ```
 
@@ -911,13 +867,13 @@ If you step through the new code, you can see that we are first trying to connec
 **=====Code Explanation Start=====**
 
 ```c
-status = WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
 ```
 
 This is followed by an attempt to connect to AWS:
 
 ```c
-hornbill.connect(HOST_ADDRESS,CLIENT_ID)
+client.begin(AWS_IOT_ENDPOINT, 8883, net);
 ```
 
 **=====Code Explanation End=====**
